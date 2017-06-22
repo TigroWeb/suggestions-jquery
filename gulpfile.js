@@ -11,6 +11,7 @@ var pkg         = require('./package.json'),
     gulpif      = require('gulp-if'),
     karma       = require('karma').Server,
     cleanCss    = require('gulp-clean-css'),
+    babel       = require('rollup-plugin-babel'),
 
     SRC_DIR = './src/',
     LESS_SRC_DIR = './less/',
@@ -38,6 +39,11 @@ gulp.task('build-script', function () {
             globals: {
                 jquery: '$'
             },
+            plugins: [
+                babel({
+                    exclude: 'node_modules/**' // only transpile our source code
+                })
+            ],
             external: ['jquery']
         }))
         .pipe(rename('jquery.suggestions.js'))
