@@ -187,7 +187,7 @@ describe('Enrich', function () {
 
         this.server.requests.length = 0;
         this.instance.selectedIndex = 0;
-        helpers.keydown(this.input, 32); // code of Space
+        helpers.keydown(this.input, 'Space'); // code of Space
 
         // request for enriched suggestion not sent
         expect(this.server.requests.length).toEqual(0);

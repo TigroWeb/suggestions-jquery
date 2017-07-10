@@ -1,15 +1,43 @@
 this.helpers = (function () {
 
     var helpers = {
-        keydown: function (el, keyCode) {
-            var event = $.Event('keydown');
-            event.keyCode = event.which = keyCode;
-            $(el).trigger(event);
+
+        keyCodes: {
+            Enter: 13,
+            Escape: 27,
+            Tab: 9,
+            Space: 32,
+            ArrowUp: 38,
+            ArrowDown: 40
         },
-        keyup: function (el, keyCode) {
-            var event = $.Event('keyup');
-            event.keyCode = event.which = keyCode;
-            $(el).trigger(event);
+
+        keydown: function (el, key) {
+            var event;
+            try {
+                // Chrome, Safari, Firefox
+                event = new KeyboardEvent('keydown', { key: key, keyCode: this.keyCodes[key], bubbles: true });
+            } catch (e) {
+                // PhantomJS
+                event = document.createEvent('Event');
+                event.key = key;
+                event.keyCode = this.keyCodes[key];
+                event.initEvent('keydown', true, true);
+            }
+            el.dispatchEvent(event);
+        },
+        keyup: function (el, key) {
+            var event;
+            try {
+                // Chrome, Safari, Firefox
+                event = new KeyboardEvent('keyup', { key: key, keyCode: this.keyCodes[key], bubbles: true });
+            } catch (e) {
+                // PhantomJS (wat!)
+                event = document.createEvent('Event');
+                event.key = this.key;
+                event.keyCode = this.keyCodes[key];
+                event.initEvent('keyup', true, true);
+            }
+            el.dispatchEvent(event);
         },
         responseFor: function (suggestions) {
             return [
@@ -21,10 +49,12 @@ this.helpers = (function () {
             ];
         },
         hitEnter: function (el) {
-            helpers.keydown(el, 13); // code of Enter
+            helpers.keydown(el, 'Enter'); // code of Enter
         },
         fireBlur: function (el) {
-            $(el).trigger($.Event('blur'))
+            var event = document.createEvent('HTMLEvents');
+            event.initEvent('blur', true, true);
+            el.dispatchEvent(event);
         },
         appendUnrestrictedValue: function (suggestion) {
             return $.extend({}, suggestion, { 'unrestricted_value': suggestion.value });

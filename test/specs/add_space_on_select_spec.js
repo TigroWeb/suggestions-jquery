@@ -41,7 +41,7 @@ describe('Adding space on selecting', function () {
             }]));
 
             this.instance.selectedIndex = 0;
-            helpers.keydown(this.input, 13);
+            helpers.hitEnter(this.input);
 
             expect(this.input.value).toEqual('Name ');
         });
@@ -60,7 +60,7 @@ describe('Adding space on selecting', function () {
             }]));
 
             this.instance.selectedIndex = 0;
-            helpers.keydown(this.input, 13);
+            helpers.hitEnter(this.input);
 
             expect(this.input.value).toEqual('Surname ');
         });
@@ -79,7 +79,7 @@ describe('Adding space on selecting', function () {
             }]));
 
             this.instance.selectedIndex = 0;
-            helpers.keydown(this.input, 13);
+            helpers.hitEnter(this.input);
 
             expect(this.input.value).toEqual('Name Patronymic ');
         });
@@ -98,7 +98,7 @@ describe('Adding space on selecting', function () {
             }]));
 
             this.instance.selectedIndex = 0;
-            helpers.keydown(this.input, 13);
+            helpers.hitEnter(this.input);
 
             expect(this.input.value).toEqual('Surname Name Patronymic');
         });
@@ -122,7 +122,7 @@ describe('Adding space on selecting', function () {
             }]));
 
             this.instance.selectedIndex = 0;
-            helpers.keydown(this.input, 13);
+            helpers.hitEnter(this.input);
 
             expect(this.input.value).toEqual('Surname');
         });
@@ -148,7 +148,7 @@ describe('Adding space on selecting', function () {
             }]));
 
             this.instance.selectedIndex = 0;
-            helpers.keydown(this.input, 13);
+            helpers.hitEnter(this.input);
 
             expect(this.input.value).toEqual('Surname');
         });
@@ -190,7 +190,7 @@ describe('Adding space on selecting', function () {
             }]));
 
             this.instance.selectedIndex = 0;
-            helpers.keydown(this.input, 13);
+            helpers.hitEnter(this.input);
 
             expect(this.input.value).toEqual('Россия ');
         });

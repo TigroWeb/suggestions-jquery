@@ -170,7 +170,7 @@ describe('Initialization', function () {
             describe('and interacted by keyboard', function () {
 
                 beforeEach(function () {
-                    helpers.keydown(this.input, 32);
+                    helpers.keydown(this.input, 'Space');
                 });
 
                 checkInitialized();

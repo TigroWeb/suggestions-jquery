@@ -43,7 +43,7 @@ describe('Select on Space', function () {
 
         this.instance.selectedIndex = 0;
 
-        helpers.keydown(this.input, 32);
+        helpers.keydown(this.input, 'Space');
 
         expect(options.onSelect.calls.count()).toEqual(1);
         expect(options.onSelect).toHaveBeenCalledWith(helpers.appendUnrestrictedValue(suggestions[0]), true);
@@ -64,7 +64,7 @@ describe('Select on Space', function () {
         this.instance.onValueChange();
         this.server.respond(helpers.responseFor(suggestions));
 
-        helpers.keydown(this.input, 32); // code of space
+        helpers.keydown(this.input, 'Space'); // code of space
 
         expect(options.onSelect.calls.count()).toEqual(1);
         expect(options.onSelect).toHaveBeenCalledWith(helpers.appendUnrestrictedValue(suggestions[0]), true);
@@ -86,7 +86,7 @@ describe('Select on Space', function () {
         this.server.respond(helpers.responseFor(suggestions));
 
         this.instance.selectedIndex = 0;
-        helpers.keydown(this.input, 32); // code of space
+        helpers.keydown(this.input, 'Space'); // code of space
 
         expect(options.onSelect).not.toHaveBeenCalled();
     });
@@ -112,7 +112,7 @@ describe('Select on Space', function () {
         this.server.respond(helpers.responseFor(suggestions));
 
         this.instance.selectedIndex = 0;
-        helpers.keydown(this.input, 32);
+        helpers.keydown(this.input, 'Space');
 
         expect(options.onSelect.calls.count()).toEqual(1);
         expect(this.input.value).toEqual('name ');

@@ -36,7 +36,7 @@ describe('Keyboard navigation', function () {
         this.input.value = 'A';
         this.instance.onValueChange();
         this.server.respond(helpers.responseFor(suggestions));
-        helpers.keydown(this.input, 40);
+        helpers.keydown(this.input, 'ArrowDown');
 
         expect(this.instance.selectedIndex).toBe(0);
         expect(this.input.value).toEqual(suggestions[0].value);
@@ -48,7 +48,7 @@ describe('Keyboard navigation', function () {
         this.input.value = 'A';
         this.instance.onValueChange();
         this.server.respond(helpers.responseFor(suggestions));
-        helpers.keydown(this.input, 38);
+        helpers.keydown(this.input, 'ArrowUp');
 
         expect(this.instance.selectedIndex).toBe(2);
         expect(this.input.value).toEqual(suggestions[2].value);
@@ -61,7 +61,7 @@ describe('Keyboard navigation', function () {
         this.instance.onValueChange();
         this.server.respond(helpers.responseFor(suggestions));
         this.instance.selectedIndex = 2;
-        helpers.keydown(this.input, 40);
+        helpers.keydown(this.input, 'ArrowDown');
 
         expect(this.instance.selectedIndex).toBe(-1);
         expect(this.input.value).toEqual('A');

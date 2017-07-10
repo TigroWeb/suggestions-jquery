@@ -11,15 +11,15 @@
 	(factory(global.$));
 }(this, (function ($) { 'use strict';
 
-$ = 'default' in $ ? $['default'] : $;
+$ = $ && 'default' in $ ? $['default'] : $;
 
 var KEYS = {
-    ENTER: 13,
-    ESC: 27,
-    TAB: 9,
-    SPACE: 32,
-    UP: 38,
-    DOWN: 40
+    ENTER: 'Enter',
+    ESC: 'Escape',
+    TAB: 'Tab',
+    SPACE: 'Space',
+    UP: 'ArrowUp',
+    DOWN: 'ArrowDown'
 };
 var EVENT_NS = '.suggestions';
 var DATA_ATTR_KEY = 'suggestions';
@@ -1851,6 +1851,51 @@ Suggestions.prototype = {
 
 };
 
+var eventsByNamespace = {};
+
+var dom = {
+
+    addClass: function addClass(element, className) {
+        var list = element.className.split(' ');
+        if (list.indexOf(className) === -1) {
+            list.push(className);
+        }
+        element.className = list.join(' ');
+    },
+
+    setStyle: function setStyle(element, name, value) {
+        element.style[name] = value;
+    },
+
+    listen: function listen(element, eventName, namespace, callback) {
+        element.addEventListener(eventName, callback, false);
+        if (namespace) {
+            if (!eventsByNamespace[namespace]) {
+                eventsByNamespace[namespace] = [];
+            }
+            eventsByNamespace[namespace].push({
+                eventName: eventName,
+                element: element,
+                callback: callback
+            });
+        }
+    },
+
+    stopListenByNamespace: function stopListenByNamespace(namespace) {
+        var events = eventsByNamespace[namespace];
+        if (events) {
+            for (var eventIndex in events) {
+                //console.log('EVENT ' + eventIndex);
+                var event = events[eventIndex];
+                event.element.removeEventListener(event.eventName, event.callback, false);
+            }
+        }
+    },
+
+    stopListen: function stopListen() {}
+
+};
+
 /**
  * Methods related to INPUT's behavior
  */
@@ -1859,117 +1904,118 @@ var methods = {
 
     setupElement: function setupElement() {
         // Remove autocomplete attribute to prevent native suggestions:
-        this.el.attr('autocomplete', 'off').addClass('suggestions-input').css('box-sizing', 'border-box');
+        this.element.setAttribute('autocomplete', 'off');
+        dom.addClass(this.element, 'suggestions-input');
+        dom.setStyle(this.element, 'boxSizing', 'border-box');
     },
 
     bindElementEvents: function bindElementEvents() {
-        var that = this;
-
-        that.el.on('keydown' + EVENT_NS, $.proxy(that.onElementKeyDown, that));
+        dom.listen(this.element, 'keydown', EVENT_NS, this.onElementKeyDown.bind(this));
         // IE is buggy, it doesn't trigger `input` on text deletion, so use following events
-        that.el.on(['keyup' + EVENT_NS, 'cut' + EVENT_NS, 'paste' + EVENT_NS, 'input' + EVENT_NS].join(' '), $.proxy(that.onElementKeyUp, that));
-        that.el.on('blur' + EVENT_NS, $.proxy(that.onElementBlur, that));
-        that.el.on('focus' + EVENT_NS, $.proxy(that.onElementFocus, that));
+        dom.listen(this.element, 'keyup', EVENT_NS, this.onElementKeyUp.bind(this));
+        dom.listen(this.element, 'cut', EVENT_NS, this.onElementKeyUp.bind(this));
+        dom.listen(this.element, 'paste', EVENT_NS, this.onElementKeyUp.bind(this));
+        dom.listen(this.element, 'input', EVENT_NS, this.onElementKeyUp.bind(this));
+        dom.listen(this.element, 'blur', EVENT_NS, this.onElementBlur.bind(this));
+        dom.listen(this.element, 'focus', EVENT_NS, this.onElementFocus.bind(this));
     },
 
     unbindElementEvents: function unbindElementEvents() {
-        this.el.off(EVENT_NS);
+        dom.stopListenByNamespace(EVENT_NS);
     },
 
     onElementBlur: function onElementBlur() {
-        var that = this;
+        var _this = this;
 
         // suggestion was clicked, blur should be ignored
         // see container mousedown handler
-        if (that.cancelBlur) {
-            that.cancelBlur = false;
+        if (this.cancelBlur) {
+            this.cancelBlur = false;
             return;
         }
 
-        if (that.options.triggerSelectOnBlur) {
-            if (!that.isUnavailable()) {
-                that.selectCurrentValue({ noSpace: true }).always(function () {
+        if (this.options.triggerSelectOnBlur) {
+            if (!this.isUnavailable()) {
+                this.selectCurrentValue({ noSpace: true }).always(function () {
                     // For NAMEs selecting keeps suggestions list visible, so hide it
-                    that.hide();
+                    _this.hide();
                 });
             }
         } else {
-            that.hide();
+            this.hide();
         }
 
-        if (that.fetchPhase.abort) {
-            that.fetchPhase.abort();
+        if (this.fetchPhase.abort) {
+            this.fetchPhase.abort();
         }
     },
 
     onElementFocus: function onElementFocus() {
-        var that = this;
-
-        if (!that.cancelFocus) {
+        if (!this.cancelFocus) {
             // defer methods to allow browser update input's style before
-            utils.delay($.proxy(that.completeOnFocus, that));
+            utils.delay(this.completeOnFocus.bind(this));
         }
-        that.cancelFocus = false;
+        this.cancelFocus = false;
     },
 
     onElementKeyDown: function onElementKeyDown(e) {
-        var that = this;
+        var _this2 = this;
 
-        if (that.isUnavailable()) {
+        if (this.isUnavailable()) {
             return;
         }
 
-        if (!that.visible) {
-            switch (e.which) {
+        if (!this.visible) {
+            switch (e.key) {
                 // If suggestions are hidden and user presses arrow down, display suggestions
                 case KEYS.DOWN:
-                    that.suggest();
+                    this.suggest();
                     break;
                 // if no suggestions available and user pressed Enter
                 case KEYS.ENTER:
-                    if (that.options.triggerSelectOnEnter) {
-                        that.triggerOnSelectNothing();
+                    if (this.options.triggerSelectOnEnter) {
+                        this.triggerOnSelectNothing();
                     }
                     break;
             }
             return;
         }
 
-        switch (e.which) {
+        switch (e.key) {
             case KEYS.ESC:
-                that.el.val(that.currentValue);
-                that.hide();
-                that.abortRequest();
+                this.el.val(this.currentValue);
+                this.hide();
+                this.abortRequest();
                 break;
 
             case KEYS.TAB:
-                if (that.options.tabDisabled === false) {
+                if (this.options.tabDisabled === false) {
                     return;
                 }
                 break;
 
             case KEYS.ENTER:
-                if (that.options.triggerSelectOnEnter) {
-                    that.selectCurrentValue();
+                if (this.options.triggerSelectOnEnter) {
+                    this.selectCurrentValue();
                 }
                 break;
 
             case KEYS.SPACE:
-                if (that.options.triggerSelectOnSpace && that.isCursorAtEnd()) {
+                if (this.options.triggerSelectOnSpace && this.isCursorAtEnd()) {
                     e.preventDefault();
-                    that.selectCurrentValue({ continueSelecting: true, dontEnrich: true }).fail(function () {
+                    this.selectCurrentValue({ continueSelecting: true, dontEnrich: true }).fail(function () {
                         // If all data fetched but nothing selected
-                        that.currentValue += ' ';
-                        that.el.val(that.currentValue);
-                        that.proceedChangedValue();
+                        _this2.currentValue += ' ';
+                        _this2.el.val(_this2.currentValue);
+                        _this2.proceedChangedValue();
                     });
                 }
                 return;
             case KEYS.UP:
-                that.moveUp();
+                this.moveUp();
                 break;
             case KEYS.DOWN:
-                that.moveDown();
+                this.moveDown();
                 break;
             default:
                 return;
@@ -1981,13 +2027,11 @@ var methods = {
     },
 
     onElementKeyUp: function onElementKeyUp(e) {
-        var that = this;
-
-        if (that.isUnavailable()) {
+        if (this.isUnavailable()) {
             return;
         }
 
-        switch (e.which) {
+        switch (e.key) {
             case KEYS.UP:
             case KEYS.DOWN:
             case KEYS.ENTER:
@@ -1995,61 +2039,58 @@ var methods = {
         }
 
         // Cancel pending change
-        clearTimeout(that.onChangeTimeout);
-        that.inputPhase.reject();
+        clearTimeout(this.onChangeTimeout);
+        this.inputPhase.reject();
 
-        if (that.currentValue !== that.el.val()) {
-            that.proceedChangedValue();
+        if (this.currentValue !== this.el.val()) {
+            this.proceedChangedValue();
         }
     },
 
     proceedChangedValue: function proceedChangedValue() {
-        var that = this;
+        var _this3 = this;
 
         // Cancel fetching, because it became obsolete
-        that.abortRequest();
+        this.abortRequest();
 
-        that.inputPhase = $.Deferred().done($.proxy(that.onValueChange, that));
+        this.inputPhase = $.Deferred().done(this.onValueChange.bind(this));
 
-        if (that.options.deferRequestBy > 0) {
+        if (this.options.deferRequestBy > 0) {
             // Defer lookup in case when value changes very quickly:
-            that.onChangeTimeout = utils.delay(function () {
-                that.inputPhase.resolve();
-            }, that.options.deferRequestBy);
+            this.onChangeTimeout = utils.delay(function () {
+                _this3.inputPhase.resolve();
+            }, this.options.deferRequestBy);
         } else {
-            that.inputPhase.resolve();
+            this.inputPhase.resolve();
         }
     },
 
     onValueChange: function onValueChange() {
-        var that = this,
-            currentSelection;
+        var currentSelection;
 
-        if (that.selection) {
-            currentSelection = that.selection;
-            that.selection = null;
-            that.trigger('InvalidateSelection', currentSelection);
+        if (this.selection) {
+            currentSelection = this.selection;
+            this.selection = null;
+            this.trigger('InvalidateSelection', currentSelection);
         }
 
-        that.selectedIndex = -1;
+        this.selectedIndex = -1;
 
-        that.update();
-        that.notify('valueChange');
+        this.update();
+        this.notify('valueChange');
     },
 
     completeOnFocus: function completeOnFocus() {
-        var that = this;
-
-        if (that.isUnavailable()) {
+        if (this.isUnavailable()) {
             return;
         }
 
-        if (that.isElementFocused()) {
-            that.fixPosition();
-            that.update();
-            if (that.isMobile) {
-                that.setCursorAtEnd();
-                that.scrollToTop();
+        if (this.isElementFocused()) {
+            this.fixPosition();
+            this.update();
+            if (this.isMobile) {
+                this.setCursorAtEnd();
+                this.scrollToTop();
             }
         }
     },
@@ -2059,14 +2100,13 @@ var methods = {
     },
 
     isCursorAtEnd: function isCursorAtEnd() {
-        var that = this,
-            valLength = that.el.val().length,
+        var valLength = this.el.val().length,
             selectionStart,
             range;
 
         // `selectionStart` and `selectionEnd` are not supported by some input types
         try {
-            selectionStart = that.element.selectionStart;
+            selectionStart = this.element.selectionStart;
             if (typeof selectionStart === 'number') {
                 return selectionStart === valLength;
             }
