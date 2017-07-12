@@ -30,7 +30,7 @@ var methods = {
             result = $.Deferred();
 
         // force onValueChange to be executed if it has been deferred
-        that.inputPhase.resolve();
+        that.inputPhaseResolve();
 
         that.fetchPhase
             .done(function () {

@@ -68,7 +68,9 @@ function Suggestions(el, options) {
     that.cachedResponse = {};
     that.enrichmentCache = {};
     that.currentRequest = null;
-    that.inputPhase = $.Deferred();
+    that.inputPhase = null;
+    that.inputPhaseResolve = function(){};
+    that.inputPhaseReject = function(){};
     that.fetchPhase = $.Deferred();
     that.enrichPhase = $.Deferred();
     that.onChangeTimeout = null;

@@ -1127,7 +1127,9 @@ function Suggestions(el, options) {
     that.cachedResponse = {};
     that.enrichmentCache = {};
     that.currentRequest = null;
-    that.inputPhase = $.Deferred();
+    that.inputPhase = null;
+    that.inputPhaseResolve = function () {};
+    that.inputPhaseReject = function () {};
     that.fetchPhase = $.Deferred();
     that.enrichPhase = $.Deferred();
     that.onChangeTimeout = null;
@@ -1896,6 +1898,8 @@ var dom = {
 
 };
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 /**
  * Methods related to INPUT's behavior
  */
@@ -2040,7 +2044,7 @@ var methods = {
 
         // Cancel pending change
         clearTimeout(this.onChangeTimeout);
-        this.inputPhase.reject();
+        this.inputPhaseReject();
 
         if (this.currentValue !== this.el.val()) {
             this.proceedChangedValue();
@@ -2053,20 +2057,23 @@ var methods = {
         // Cancel fetching, because it became obsolete
         this.abortRequest();
 
-        this.inputPhase = $.Deferred().done(this.onValueChange.bind(this));
+        this.inputPhase = new Promise(function (resolve, reject) {
+            _this3.inputPhaseResolve = resolve;
+            _this3.inputPhaseReject = reject;
+        }).then(this.onValueChange.bind(this), function () {});
 
         if (this.options.deferRequestBy > 0) {
             // Defer lookup in case when value changes very quickly:
             this.onChangeTimeout = utils.delay(function () {
-                _this3.inputPhase.resolve();
+                _this3.inputPhaseResolve();
             }, this.options.deferRequestBy);
         } else {
-            this.inputPhase.resolve();
+            this.inputPhaseResolve();
         }
     },
 
     onValueChange: function onValueChange() {
-        var currentSelection;
+        var currentSelection = void 0;
 
         if (this.selection) {
             currentSelection = this.selection;
@@ -2101,8 +2108,8 @@ var methods = {
 
     isCursorAtEnd: function isCursorAtEnd() {
         var valLength = this.el.val().length,
-            selectionStart,
-            range;
+            selectionStart = void 0,
+            range = void 0;
 
         // `selectionStart` and `selectionEnd` are not supported by some input types
         try {
@@ -2134,7 +2141,7 @@ var methods = {
 
 };
 
-$.extend(Suggestions.prototype, methods);
+_extends(Suggestions.prototype, methods);
 
 notificator.on('initialize', methods.bindElementEvents).on('dispose', methods.unbindElementEvents);
 
@@ -3557,7 +3564,7 @@ var methods$7 = {
             result = $.Deferred();
 
         // force onValueChange to be executed if it has been deferred
-        that.inputPhase.resolve();
+        that.inputPhaseResolve();
 
         that.fetchPhase.done(function () {
             var index;

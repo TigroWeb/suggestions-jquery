@@ -1,5 +1,3 @@
-import $ from 'jquery';
-
 import { utils } from './utils';
 import { dom } from './dom';
 import { notificator } from './notificator';
@@ -11,7 +9,7 @@ import { KEYS, EVENT_NS } from './constants';
  * Methods related to INPUT's behavior
  */
 
-var methods = {
+let methods = {
 
     setupElement: function () {
         // Remove autocomplete attribute to prevent native suggestions:
@@ -149,7 +147,7 @@ var methods = {
 
         // Cancel pending change
         clearTimeout(this.onChangeTimeout);
-        this.inputPhase.reject();
+        this.inputPhaseReject();
 
         if (this.currentValue !== this.el.val()) {
             this.proceedChangedValue();
@@ -160,21 +158,24 @@ var methods = {
         // Cancel fetching, because it became obsolete
         this.abortRequest();
 
-        this.inputPhase = $.Deferred()
-            .done(this.onValueChange.bind(this));
+        this.inputPhase = new Promise((resolve, reject) => {
+            this.inputPhaseResolve = resolve;
+            this.inputPhaseReject = reject;
+        })
+            .then(this.onValueChange.bind(this), () => {});
 
         if (this.options.deferRequestBy > 0) {
             // Defer lookup in case when value changes very quickly:
             this.onChangeTimeout = utils.delay(() => {
-                this.inputPhase.resolve();
+                this.inputPhaseResolve();
             }, this.options.deferRequestBy);
         } else {
-            this.inputPhase.resolve();
+            this.inputPhaseResolve();
         }
     },
 
     onValueChange: function () {
-        var currentSelection;
+        let currentSelection;
 
         if (this.selection) {
             currentSelection = this.selection;
@@ -208,7 +209,7 @@ var methods = {
     },
 
     isCursorAtEnd: function () {
-        var valLength = this.el.val().length,
+        let valLength = this.el.val().length,
             selectionStart,
             range;
 
@@ -230,7 +231,7 @@ var methods = {
     },
 
     setCursorAtEnd: function () {
-        var element = this.element;
+        let element = this.element;
 
         // `selectionStart` and `selectionEnd` are not supported by some input types
         try {
@@ -243,7 +244,7 @@ var methods = {
 
 };
 
-$.extend(Suggestions.prototype, methods);
+Object.assign(Suggestions.prototype, methods);
 
 notificator
     .on('initialize', methods.bindElementEvents)
