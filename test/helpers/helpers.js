@@ -79,6 +79,9 @@ this.helpers = (function () {
         },
         returnPoorStatus: function (server) {
             helpers.returnStatus(server, { search: true, enrich: false });
+        },
+        delay: function(func) {
+            return setTimeout(func, 0);
         }
     };
     return helpers;

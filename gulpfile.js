@@ -1,6 +1,8 @@
 var pkg         = require('./package.json'),
     gulp        = require('gulp'),
     rollup      = require('gulp-rollup'),
+    resolve     = require('rollup-plugin-node-resolve'),
+    commonjs    = require('rollup-plugin-commonjs'),
     rename      = require('gulp-rename'),
     banner      = require('gulp-banner'),
     ending      = require('gulp-line-ending-corrector'),
@@ -12,6 +14,7 @@ var pkg         = require('./package.json'),
     karma       = require('karma').Server,
     cleanCss    = require('gulp-clean-css'),
     babel       = require('rollup-plugin-babel'),
+    gulpBabel   = require('gulp-babel'),
 
     SRC_DIR = './src/',
     LESS_SRC_DIR = './less/',
@@ -33,18 +36,24 @@ gulp.task('build-script', function () {
     return gulp.src(SRC_DIR + '**/*.js')
         .pipe(gulpif(!devMode, ending({ eolc: 'LF' })))
         .pipe(gulpif(!devMode, gulp.dest(SRC_DIR)))
+        .pipe(gulpBabel({
+            plugins: ['transform-runtime']
+        }))
         .pipe(rollup({
+            allowRealFiles: true,
             entry: SRC_DIR + 'main.js',
             format: 'umd',
             globals: {
                 jquery: '$'
             },
+            external: ['jquery'],
             plugins: [
-                babel({
-                    exclude: 'node_modules/**' // only transpile our source code
-                })
+                resolve({
+                    module: true,
+                    jsnext: true,
+                }),
+                commonjs(),
             ],
-            external: ['jquery']
         }))
         .pipe(rename('jquery.suggestions.js'))
         .pipe(banner(comment, { pkg: pkg }))

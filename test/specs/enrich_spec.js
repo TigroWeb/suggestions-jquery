@@ -53,7 +53,7 @@ describe('Enrich', function () {
             }]
         };
 
-    beforeEach(function () {
+    beforeEach(function (done) {
         $.Suggestions.resetTokens();
 
         this.server = sinon.fakeServer.create();
@@ -69,6 +69,8 @@ describe('Enrich', function () {
 
         helpers.returnGoodStatus(this.server);
         this.server.requests.length = 0;
+
+        done();
     });
 
     afterEach(function () {
@@ -193,7 +195,7 @@ describe('Enrich', function () {
         expect(this.server.requests.length).toEqual(0);
     });
 
-    it('Should NOT enrich a suggestion when server returns `enrich:false` in status', function () {
+    it('Should NOT enrich a suggestion when server returns `enrich:false` in status', function (done) {
         $.Suggestions.resetTokens();
         this.instance.setOptions({
             token: '456'
@@ -204,17 +206,21 @@ describe('Enrich', function () {
         });
         this.server.requests.length = 0;
 
-        // select address
-        this.input.value = 'М';
-        this.instance.onValueChange();
-        this.server.respond(helpers.responseFor(fixtures.poorAddress));
+        helpers.delay(() => {
+            // select address
+            this.input.value = 'М';
+            this.instance.onValueChange();
+            this.server.respond(helpers.responseFor(fixtures.poorAddress));
 
-        this.server.requests.length = 0;
-        this.instance.selectedIndex = 0;
-        helpers.hitEnter(this.input);
+            this.server.requests.length = 0;
+            this.instance.selectedIndex = 0;
+            helpers.hitEnter(this.input);
 
-        // request for enriched suggestion not sent
-        expect(this.server.requests.length).toEqual(0);
+            // request for enriched suggestion not sent
+            expect(this.server.requests.length).toEqual(0);
+
+            done();
+        });
     });
 
     it('Should NOT enrich a suggestion with specified qc', function () {

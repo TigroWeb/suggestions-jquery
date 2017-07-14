@@ -248,6 +248,21 @@ var utils = (function () {
             });
 
             return copy;
+        },
+
+        /**
+         * Итератор. Работает только с объектами.
+         * Для массивов использовать нативный forEach
+         */
+        each: function(obj, callback) {
+            Object.keys(obj).forEach(function(key) {
+                let value = obj[key];
+                callback(value, key);
+            })
+        },
+
+        isFunction: function(it) {
+            return Object.prototype.toString.call(it) === '[object Function]';
         }
 
     };

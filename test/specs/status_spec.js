@@ -41,7 +41,7 @@ describe('Status features', function () {
         expect(this.server.requests[0].requestHeaders.Authorization).toBeUndefined();
     });
 
-    it('Should invoke `onSearchError` callback if status request failed', function () {
+    it('Should invoke `onSearchError` callback if status request failed', function (done) {
         var options = {
             onSearchError: $.noop,
             token: '456'
@@ -51,7 +51,10 @@ describe('Status features', function () {
 
         this.server.respond([401, {}, 'Not Authorized']);
 
-        expect(options.onSearchError).toHaveBeenCalled();
+        helpers.delay(function () {
+            expect(options.onSearchError).toHaveBeenCalled();
+            done();
+        });
     });
 
     it('Should use url param (if it passed) instead of serviceUrl', function () {
@@ -95,7 +98,7 @@ describe('Status features', function () {
             expect(this.server.requests.length).toEqual(2);
         });
 
-        it('Should invoke `onSearchError` callback on controls with same type and token', function () {
+        it('Should invoke `onSearchError` callback on controls with same type and token', function (done) {
             var options = {
                 onSearchError: $.noop
             };
@@ -104,7 +107,10 @@ describe('Status features', function () {
 
             this.server.respond([401, {}, 'Not Authorized']);
 
-            expect(options.onSearchError).toHaveBeenCalled();
+            helpers.delay(function() {
+                expect(options.onSearchError).toHaveBeenCalled();
+                done();
+            });
         });
     });
 

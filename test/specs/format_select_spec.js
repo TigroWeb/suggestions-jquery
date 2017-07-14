@@ -3,7 +3,7 @@ describe('Text to insert after selection', function () {
 
     var serviceUrl = '/some/url';
 
-    beforeEach(function () {
+    beforeEach(function (done) {
         this.server = sinon.fakeServer.create();
 
         this.input = document.createElement('input');
@@ -17,6 +17,8 @@ describe('Text to insert after selection', function () {
 
         helpers.returnGoodStatus(this.server);
         this.server.requests.length = 0;
+
+        done();
     });
 
     afterEach(function () {

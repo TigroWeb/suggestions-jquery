@@ -1,21 +1,13 @@
 {
   "presets": [
     [
-      "latest",
+      "env",
       {
-        "es2015": {
-          "modules": false
-        }
+        "targets": {
+          "ie": 9
+        },
+        "modules": false
       }
     ]
-  ],
-  "plugins": [
-    [
-      "transform-es2015-for-of",
-      {
-        "loose": true
-      }
-    ],
-    "transform-object-assign"
   ]
 }
