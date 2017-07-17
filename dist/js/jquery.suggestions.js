@@ -3858,18 +3858,19 @@ resetTokens();
 var methods$1 = {
 
     checkStatus: function checkStatus() {
-        var that = this,
-            token = that.options.token && that.options.token.trim(),
-            requestKey = that.options.type + token,
+        var _this = this;
+
+        var token = this.options.token && this.options.token.trim(),
+            requestKey = this.options.type + token,
             request = statusRequests[requestKey];
 
         if (!request) {
-            request = statusRequests[requestKey] = ajax.send(that.getAjaxParams('status'));
+            request = statusRequests[requestKey] = ajax.send(this.getAjaxParams('status'));
         }
 
         request.then(function (status) {
             if (status.search) {
-                _Object$assign(that.status, status);
+                _Object$assign(_this.status, status);
             } else {
                 triggerError('Service Unavailable');
             }
@@ -3877,12 +3878,12 @@ var methods$1 = {
             triggerError(xhr.statusText);
         });
 
-        function triggerError(errorThrown) {
+        var triggerError = function triggerError(errorThrown) {
             // If unauthorized
-            if (utils.isFunction(that.options.onSearchError)) {
-                that.options.onSearchError.call(that.element, null, request, 'error', errorThrown);
+            if (utils.isFunction(_this.options.onSearchError)) {
+                _this.options.onSearchError.call(_this.element, null, request, 'error', errorThrown);
             }
-        }
+        };
     }
 
 };
@@ -3893,7 +3894,7 @@ _Object$assign(Suggestions.prototype, methods$1);
 
 notificator.on('setOptions', methods$1.checkStatus);
 
-var locationRequest;
+var locationRequest = void 0;
 var defaultGeoLocation = true;
 
 function resetLocation() {
@@ -3904,30 +3905,31 @@ function resetLocation() {
 var methods$2 = {
 
     checkLocation: function checkLocation() {
-        var that = this,
-            providedLocation = that.options.geoLocation;
+        var _this = this;
 
-        if (!that.type.geoEnabled || !providedLocation) {
+        var providedLocation = this.options.geoLocation;
+
+        if (!this.type.geoEnabled || !providedLocation) {
             return;
         }
 
-        that.geoLocation = $.Deferred();
+        this.geoLocation = $.Deferred();
         if ($.isPlainObject(providedLocation) || $.isArray(providedLocation)) {
-            that.geoLocation.resolve(providedLocation);
+            this.geoLocation.resolve(providedLocation);
         } else {
             if (!locationRequest) {
-                locationRequest = $.ajax(that.getAjaxParams('detectAddressByIp'));
+                locationRequest = $.ajax(this.getAjaxParams('detectAddressByIp'));
             }
 
             locationRequest.done(function (resp) {
                 var locationData = resp && resp.location && resp.location.data;
                 if (locationData && locationData.kladr_id) {
-                    that.geoLocation.resolve(locationData);
+                    _this.geoLocation.resolve(locationData);
                 } else {
-                    that.geoLocation.reject();
+                    _this.geoLocation.reject();
                 }
             }).fail(function () {
-                that.geoLocation.reject();
+                _this.geoLocation.reject();
             });
         }
     },
@@ -3941,11 +3943,10 @@ var methods$2 = {
     },
 
     constructParams: function constructParams() {
-        var that = this,
-            params = {};
+        var params = {};
 
-        if (that.geoLocation && $.isFunction(that.geoLocation.promise) && that.geoLocation.state() == 'resolved') {
-            that.geoLocation.done(function (locationData) {
+        if (this.geoLocation && $.isFunction(this.geoLocation.promise) && this.geoLocation.state() == 'resolved') {
+            this.geoLocation.done(function (locationData) {
                 params['locations_boost'] = $.makeArray(locationData);
             });
         }

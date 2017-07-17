@@ -5,7 +5,7 @@ import { notificator } from './notificator';
 import { Suggestions } from './suggestions';
 import { DEFAULT_OPTIONS } from './default-options';
 
-var locationRequest,
+let locationRequest,
     defaultGeoLocation = true;
 
 function resetLocation () {
@@ -13,35 +13,34 @@ function resetLocation () {
     DEFAULT_OPTIONS.geoLocation = defaultGeoLocation;
 }
 
-var methods = {
+let methods = {
 
     checkLocation: function () {
-        var that = this,
-            providedLocation = that.options.geoLocation;
+        let providedLocation = this.options.geoLocation;
 
-        if (!that.type.geoEnabled || !providedLocation) {
+        if (!this.type.geoEnabled || !providedLocation) {
             return;
         }
 
-        that.geoLocation = $.Deferred();
+        this.geoLocation = $.Deferred();
         if ($.isPlainObject(providedLocation) || $.isArray(providedLocation)) {
-            that.geoLocation.resolve(providedLocation);
+            this.geoLocation.resolve(providedLocation);
         } else {
             if (!locationRequest) {
-                locationRequest = $.ajax(that.getAjaxParams('detectAddressByIp'));
+                locationRequest = $.ajax(this.getAjaxParams('detectAddressByIp'));
             }
 
             locationRequest
-                .done(function (resp) {
-                    var locationData = resp && resp.location && resp.location.data;
+                .done((resp) => {
+                    let locationData = resp && resp.location && resp.location.data;
                     if (locationData && locationData.kladr_id) {
-                        that.geoLocation.resolve(locationData);
+                        this.geoLocation.resolve(locationData);
                     } else {
-                        that.geoLocation.reject();
+                        this.geoLocation.reject();
                     }
                 })
-                .fail(function(){
-                    that.geoLocation.reject();
+                .fail(() => {
+                    this.geoLocation.reject();
                 });
         }
     },
@@ -55,11 +54,10 @@ var methods = {
     },
 
     constructParams: function () {
-        var that = this,
-            params = {};
+        let params = {};
 
-        if (that.geoLocation && $.isFunction(that.geoLocation.promise) && that.geoLocation.state() == 'resolved') {
-            that.geoLocation.done(function (locationData) {
+        if (this.geoLocation && $.isFunction(this.geoLocation.promise) && this.geoLocation.state() == 'resolved') {
+            this.geoLocation.done(function (locationData) {
                 params['locations_boost'] = $.makeArray(locationData);
             });
         }

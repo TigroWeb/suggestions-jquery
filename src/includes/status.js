@@ -22,19 +22,18 @@ resetTokens();
 let methods = {
 
     checkStatus: function () {
-        let that = this,
-            token = that.options.token && that.options.token.trim(),
-            requestKey = that.options.type + token,
+        let token = this.options.token && this.options.token.trim(),
+            requestKey = this.options.type + token,
             request = statusRequests[requestKey];
 
         if (!request) {
-            request = statusRequests[requestKey] = ajax.send(that.getAjaxParams('status'));
+            request = statusRequests[requestKey] = ajax.send(this.getAjaxParams('status'));
         }
 
         request
-            .then(function(status) {
+            .then((status) => {
                 if (status.search) {
-                    Object.assign(that.status, status);
+                    Object.assign(this.status, status);
                 } else {
                     triggerError('Service Unavailable');
                 }
@@ -43,10 +42,10 @@ let methods = {
                 triggerError(xhr.statusText);
             });
 
-        function triggerError(errorThrown){
+        let triggerError = (errorThrown) => {
             // If unauthorized
-            if (utils.isFunction(that.options.onSearchError)) {
-                that.options.onSearchError.call(that.element, null, request, 'error', errorThrown);
+            if (utils.isFunction(this.options.onSearchError)) {
+                this.options.onSearchError.call(this.element, null, request, 'error', errorThrown);
             }
         }
     }
