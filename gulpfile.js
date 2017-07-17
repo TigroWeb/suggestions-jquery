@@ -109,7 +109,7 @@ gulp.task('test-phantomjs', function (callback) {
 
 gulp.task('test-phantomjs-min', function (callback) {
     new karma({
-        configFile: __dirname + TEST_DIR + 'karma.phantomjs.min.js',
+        configFile: __dirname + TEST_DIR + 'karma.phantomjs-min.js',
         singleRun: true
     }, callback).start();
 });

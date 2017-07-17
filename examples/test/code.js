@@ -37,7 +37,7 @@
                 if (address.city_with_type === address.region_with_type) {
                     return address.settlement_with_type || '';
                 } else {
-                    return join([ address.city_with_type, address.settlement_with_type ]);
+                    return [ address.city_with_type, address.settlement_with_type ].join(' ');
                 }
             }
         });

@@ -1,5 +1,3 @@
-import $ from 'jquery';
-
 import { notificator } from './notificator';
 import { Suggestions } from './suggestions';
 import { utils } from './utils';

@@ -3,14 +3,6 @@ import { dom } from '../../src/includes/dom';
 describe('Dom utils', function () {
     'use strict';
 
-    beforeEach(function () {
-
-    });
-
-    afterEach(function () {
-
-    });
-
     it('should add class to element', function () {
         let element = document.createElement('span'),
             className;

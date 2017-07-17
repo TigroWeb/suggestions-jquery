@@ -3,7 +3,8 @@ module.exports = function(config) {
         browsers: ['PhantomJS'],
         frameworks: ['jquery-1.9.1', 'jasmine-jquery', 'jasmine', 'jasmine-sinon'],
         files: [
-            { pattern: '../src/includes/dom.js', included: false },
+            '../node_modules/babel-polyfill/dist/polyfill.js',
+            { pattern: '../src/includes/*.js', included: false },
             '../dist/js/jquery.suggestions.js',
             '../dist/css/*.css',
             'helpers/helpers.js',

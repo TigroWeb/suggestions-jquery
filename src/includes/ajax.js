@@ -1,5 +1,11 @@
 import { utils } from './utils';
 
+let setHeaders = function(xhr, headers) {
+    utils.each(headers, function (value, name) {
+        xhr.setRequestHeader(name, value);
+    });
+};
+
 let ajax = {
 
     send: function (params) {
@@ -44,12 +50,12 @@ let ajax = {
                 xhr.open(params.type, params.url, true);
             }
 
-            this.setHeaders(xhr, Object.assign({
+            setHeaders(xhr, Object.assign({
                 'Content-type': 'application/json'
             }, params.headers));
 
             try {
-                params.type === 'GET' ? xhr.send() : xhr.send();
+                xhr.send();
             } catch(e) {
                 reject();
             }
@@ -65,16 +71,6 @@ let ajax = {
 
         return promise;
     },
-
-    get: function(url) {
-        return this.send('GET', url);
-    },
-
-    setHeaders: function(xhr, headers) {
-        utils.each(headers, function (value, name) {
-            xhr.setRequestHeader(name, value);
-        });
-    }
 
 };
 

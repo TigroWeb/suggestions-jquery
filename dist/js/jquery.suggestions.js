@@ -3765,6 +3765,12 @@ _Object$assign(Suggestions.prototype, methods);
 
 notificator.on('initialize', methods.bindElementEvents).on('dispose', methods.unbindElementEvents);
 
+var setHeaders = function setHeaders(xhr, headers) {
+    utils.each(headers, function (value, name) {
+        xhr.setRequestHeader(name, value);
+    });
+};
+
 var ajax = {
 
     send: function send(params) {
@@ -3809,12 +3815,12 @@ var ajax = {
                 xhr.open(params.type, params.url, true);
             }
 
-            this.setHeaders(xhr, _Object$assign({
+            setHeaders(xhr, _Object$assign({
                 'Content-type': 'application/json'
             }, params.headers));
 
             try {
-                params.type === 'GET' ? xhr.send() : xhr.send();
+                xhr.send();
             } catch (e) {
                 reject();
             }
@@ -3829,16 +3835,6 @@ var ajax = {
         promise$$1.xhr = xhr;
 
         return promise$$1;
-    },
-
-    get: function get(url) {
-        return this.send('GET', url);
-    },
-
-    setHeaders: function setHeaders(xhr, headers) {
-        utils.each(headers, function (value, name) {
-            xhr.setRequestHeader(name, value);
-        });
     }
 
 };
