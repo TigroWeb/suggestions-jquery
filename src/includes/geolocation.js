@@ -23,7 +23,7 @@ let methods = {
         }
 
         this.geoLocation = $.Deferred();
-        if ($.isPlainObject(providedLocation) || $.isArray(providedLocation)) {
+        if (utils.isPlainObject(providedLocation) || utils.isArray(providedLocation)) {
             this.geoLocation.resolve(providedLocation);
         } else {
             if (!locationRequest) {
@@ -56,9 +56,9 @@ let methods = {
     constructParams: function () {
         let params = {};
 
-        if (this.geoLocation && $.isFunction(this.geoLocation.promise) && this.geoLocation.state() == 'resolved') {
+        if (this.geoLocation && utils.isFunction(this.geoLocation.promise) && this.geoLocation.state() == 'resolved') {
             this.geoLocation.done(function (locationData) {
-                params['locations_boost'] = $.makeArray(locationData);
+                params['locations_boost'] = utils.makeArray(locationData);
             });
         }
 
@@ -70,15 +70,15 @@ let methods = {
 
 // Disable this feature when GET method used. See SUG-202
 if (utils.getDefaultType() != 'GET') {
-    $.extend(DEFAULT_OPTIONS, {
+    Object.assign(DEFAULT_OPTIONS, {
         geoLocation: defaultGeoLocation
     });
 
-    $.extend(Suggestions, {
+    Object.assign(Suggestions, {
         resetLocation: resetLocation
     });
 
-    $.extend(Suggestions.prototype, {
+    Object.assign(Suggestions.prototype, {
         getGeoLocation: methods.getGeoLocation
     });
 

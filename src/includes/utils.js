@@ -263,6 +263,30 @@ var utils = (function () {
 
         isFunction: function(it) {
             return Object.prototype.toString.call(it) === '[object Function]';
+        },
+
+        isArray: function(array) {
+            return Array.isArray(array);
+        },
+
+        isPlainObject: function(obj) {
+          if (typeof (obj) !== 'object' || obj.nodeType || obj !== null && obj !== undefined && obj === obj.window) {
+            return false;
+          }
+
+          if (obj.constructor && !Object.prototype.hasOwnProperty.call(obj.constructor.prototype, 'isPrototypeOf')) {
+            return false;
+          }
+
+          return true;
+        },
+
+        makeArray: function(arrayLike) {
+            if (this.isArray(arrayLike)) {
+                return Array.prototype.slice.call(arrayLike);
+            } else {
+                return [arrayLike];
+            }
         }
 
     };

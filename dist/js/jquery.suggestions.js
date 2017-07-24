@@ -1274,6 +1274,30 @@ var utils = function () {
 
         isFunction: function isFunction(it) {
             return Object.prototype.toString.call(it) === '[object Function]';
+        },
+
+        isArray: function isArray(array) {
+            return Array.isArray(array);
+        },
+
+        isPlainObject: function isPlainObject(obj) {
+            if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) !== 'object' || obj.nodeType || obj !== null && obj !== undefined && obj === obj.window) {
+                return false;
+            }
+
+            if (obj.constructor && !Object.prototype.hasOwnProperty.call(obj.constructor.prototype, 'isPrototypeOf')) {
+                return false;
+            }
+
+            return true;
+        },
+
+        makeArray: function makeArray(arrayLike) {
+            if (this.isArray(arrayLike)) {
+                return Array.prototype.slice.call(arrayLike);
+            } else {
+                return [arrayLike];
+            }
         }
 
     };
@@ -3914,7 +3938,7 @@ var methods$2 = {
         }
 
         this.geoLocation = $.Deferred();
-        if ($.isPlainObject(providedLocation) || $.isArray(providedLocation)) {
+        if (utils.isPlainObject(providedLocation) || utils.isArray(providedLocation)) {
             this.geoLocation.resolve(providedLocation);
         } else {
             if (!locationRequest) {
@@ -3945,9 +3969,9 @@ var methods$2 = {
     constructParams: function constructParams() {
         var params = {};
 
-        if (this.geoLocation && $.isFunction(this.geoLocation.promise) && this.geoLocation.state() == 'resolved') {
+        if (this.geoLocation && utils.isFunction(this.geoLocation.promise) && this.geoLocation.state() == 'resolved') {
             this.geoLocation.done(function (locationData) {
-                params['locations_boost'] = $.makeArray(locationData);
+                params['locations_boost'] = utils.makeArray(locationData);
             });
         }
 
@@ -3958,15 +3982,15 @@ var methods$2 = {
 
 // Disable this feature when GET method used. See SUG-202
 if (utils.getDefaultType() != 'GET') {
-    $.extend(DEFAULT_OPTIONS, {
+    _Object$assign(DEFAULT_OPTIONS, {
         geoLocation: defaultGeoLocation
     });
 
-    $.extend(Suggestions, {
+    _Object$assign(Suggestions, {
         resetLocation: resetLocation
     });
 
-    $.extend(Suggestions.prototype, {
+    _Object$assign(Suggestions.prototype, {
         getGeoLocation: methods$2.getGeoLocation
     });
 
