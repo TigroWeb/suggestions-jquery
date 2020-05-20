@@ -1,46 +1,31 @@
 (function($) {
-    function geolocateCity($city) {
-        var citySgt = $city.suggestions();
-        citySgt.getGeoLocation().done(function(locationData) {
-            if (locationData.city) {
-                var suggestionVal =
-                        locationData.city_type + " " + locationData.city,
-                    suggestion = { value: suggestionVal, data: locationData };
-                citySgt.setSuggestion(suggestion);
-            } else if (locationData.region) {
-                var suggestionVal =
-                        locationData.region_type + " " + locationData.region,
-                    suggestion = { value: suggestionVal, data: locationData };
-                citySgt.setSuggestion(suggestion);
-            }
-        });
+    function log(suggestion) {
+        console.log(suggestion);
     }
 
     $(function() {
         Token.init();
 
-        var serviceUrl = "https://suggestions.dadata.ru/suggestions/api/4_1/rs",
+        var serviceUrl =
+                "http://suggestions-1.office.dadata.ru:8080/suggestions/api/4_1/rs",
             token = Token.get(),
-            type = "ADDRESS",
-            $country = $("#country"),
+            type = "FIAS",
+            $address = $("#address"),
             $region = $("#region"),
             $area = $("#area"),
             $city = $("#city"),
             $cityDistrict = $("#city_district"),
             $settlement = $("#settlement"),
+            $planningStructure = $("#planning_structure"),
             $street = $("#street"),
             $house = $("#house");
 
-        // страна
-        $country.suggestions({
+        // одной строкой
+        $address.suggestions({
             serviceUrl: serviceUrl,
             token: token,
             type: type,
-            hint: false,
-            bounds: "country",
-            constraints: {
-                locations: { country_iso_code: "*" }
-            }
+            onSelect: log
         });
 
         // регион
@@ -50,7 +35,7 @@
             type: type,
             hint: false,
             bounds: "region",
-            constraints: $country
+            onSelect: log
         });
 
         // район
@@ -60,7 +45,8 @@
             type: type,
             hint: false,
             bounds: "area",
-            constraints: $region
+            constraints: $region,
+            onSelect: log
         });
 
         // город и населенный пункт
@@ -70,7 +56,8 @@
             type: type,
             hint: false,
             bounds: "city",
-            constraints: $area
+            constraints: $area,
+            onSelect: log
         });
 
         // район города
@@ -80,19 +67,30 @@
             type: type,
             hint: false,
             bounds: "city_district",
-            constraints: $city
+            constraints: $city,
+            onSelect: log
         });
 
-        // geolocateCity($city);
-
-        // город и населенный пункт
+        // населенный пункт
         $settlement.suggestions({
             serviceUrl: serviceUrl,
             token: token,
             type: type,
             hint: false,
             bounds: "settlement",
-            constraints: $cityDistrict
+            constraints: $cityDistrict,
+            onSelect: log
+        });
+
+        // план. структура
+        $planningStructure.suggestions({
+            serviceUrl: serviceUrl,
+            token: token,
+            type: type,
+            hint: false,
+            bounds: "planning_structure",
+            constraints: $settlement,
+            onSelect: log
         });
 
         // улица
@@ -102,7 +100,8 @@
             type: type,
             hint: false,
             bounds: "street",
-            constraints: $settlement
+            constraints: $planningStructure,
+            onSelect: log
         });
 
         // дом
@@ -112,7 +111,8 @@
             type: type,
             hint: false,
             bounds: "house",
-            constraints: $street
+            constraints: $street,
+            onSelect: log
         });
     });
 })(jQuery);

@@ -1,12 +1,12 @@
-import { DEFAULT_OPTIONS } from './default-options';
-import { jqapi } from './jqapi';
-import { ADDRESS_TYPE } from './types/address';
-import { NAME_TYPE } from './types/name';
-import { PARTY_TYPE } from './types/party';
-import { EMAIL_TYPE } from './types/email';
-import { BANK_TYPE } from './types/bank';
-import { Outward } from './types/outward';
-
+import { DEFAULT_OPTIONS } from "./default-options";
+import { jqapi } from "./jqapi";
+import { ADDRESS_TYPE } from "./types/address";
+import { FIAS_TYPE } from "./types/fias";
+import { NAME_TYPE } from "./types/name";
+import { PARTY_TYPE } from "./types/party";
+import { EMAIL_TYPE } from "./types/email";
+import { BANK_TYPE } from "./types/bank";
+import { Outward } from "./types/outward";
 
 /**
  * Type is a bundle of properties:
@@ -31,11 +31,12 @@ import { Outward } from './types/outward';
  */
 
 var types = {
-    'NAME': NAME_TYPE,
-    'ADDRESS': ADDRESS_TYPE,
-    'PARTY': PARTY_TYPE,
-    'EMAIL': EMAIL_TYPE,
-    'BANK': BANK_TYPE
+    NAME: NAME_TYPE,
+    ADDRESS: ADDRESS_TYPE,
+    FIAS: FIAS_TYPE,
+    PARTY: PARTY_TYPE,
+    EMAIL: EMAIL_TYPE,
+    BANK: BANK_TYPE
 };
 
 types.get = function(type) {
@@ -44,7 +45,7 @@ types.get = function(type) {
     } else {
         return new Outward(type);
     }
-}
+};
 
 jqapi.extend(DEFAULT_OPTIONS, {
     suggest_local: true
